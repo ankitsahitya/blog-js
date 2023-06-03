@@ -1,4 +1,5 @@
 const { User } = require("../models")
+const jwt = require('jsonwebtoken')
 
 exports.index = async (req, res) => {
   try {
@@ -84,6 +85,29 @@ exports.destroy = async (req, res) => {
       })
   }
   catch (err) {
+    res.status(422).send({
+      message: "Something went wrong!"
+    })
+  }
+}
+
+exports.login = async (req, res) => {
+  try {
+    const user = await User.findOne({
+      email: req.body.email
+    })
+
+    if (user) {
+      const token = jwt.sign({ user: user }, '123456')
+      res.send({ token: token })
+    }
+    else
+      res.status(404).send({
+        message: `User not found by id ${req.params.id}`
+      })
+  }
+  catch (err) {
+    console.log(err.stack)
     res.status(422).send({
       message: "Something went wrong!"
     })
